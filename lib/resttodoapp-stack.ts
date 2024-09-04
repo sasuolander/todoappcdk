@@ -1,16 +1,57 @@
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import {AppInfo} from "./appInfo";
+import {Construct} from 'constructs';
+import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
+import {Table} from "aws-cdk-lib/aws-dynamodb";
+import {StringParameter} from "aws-cdk-lib/aws-ssm";
+import {ApiKey, ApiKeySourceType, LambdaIntegration, RestApi, UsagePlan} from "aws-cdk-lib/aws-apigateway";
+
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class ResttodoappStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+  constructor(scope: Construct, id: string, props?: AppInfo) {
+      super(scope, id, props);
 
-    // The code that defines your stack goes here
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'ResttodoappQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const table = Table.fromTableArn(this,"",
+        StringParameter.fromStringParameterName(this,"SS",
+        "mainTable_"+ props?.envName).stringValue)
+
+// Create the Lambda function
+      const myFunction = new NodejsFunction(this, 'MyFunction', {
+          entry: 'src/my-function.ts', // entry point to your Lambda function
+          handler: 'handler', // the name of the exported handler in the entry file
+          runtime:  cdk.aws_lambda.Runtime.NODEJS_20_X, // or another supported Node.js runtime
+          environment: {
+              TABLE_NAME: table.tableName,
+          },
+      });
+
+      // Grant the Lambda function read/write permissions on the DynamoDB table
+      table.grantReadWriteData(myFunction);
+
+
+      const api = new RestApi(this, "testApi_"+ props?.envName,{
+          apiKeySourceType: ApiKeySourceType.HEADER,
+          deployOptions : {stageName: "testApi_"+ props?.envName}
+      })
+      const lambdaIntegration = new LambdaIntegration(myFunction)
+      api.root.addMethod('POST', lambdaIntegration)
+      api.root.addMethod('UPDATE', lambdaIntegration)
+      api.root.addMethod('GET', lambdaIntegration)
+      api.root.addMethod('UPDATE', lambdaIntegration)
+
+      const apiKey = new ApiKey(this, 'ApiKey');
+
+      const usagePlan = new UsagePlan(this, 'UsagePlan', {
+          name: 'Usage Plan',
+          apiStages: [
+              {
+                  api,
+                  stage: api.deploymentStage,
+              },
+          ],
+      });
+      usagePlan.addApiKey(apiKey);
   }
 }

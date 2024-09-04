@@ -1,0 +1,14 @@
+
+stypescript:S1128"+Remove this unused import of 'ALBCallback'.(¬‰µ.8ŠíÛï›2J$8ee7e11e-6f88-496f-a570-49153c45039b
+ptypescript:S1128"(Remove this unused import of 'ALBEvent'.(¬‰µ.8ŠíÛï›2J$9110e140-65b1-4e7f-af8b-5b5e5da0171e
+qtypescript:S1128")Remove this unused import of 'ALBResult'.(¬‰µ.8ŠíÛï›2J$f1c8cf1d-0054-4ffb-8a04-faf26d4726e2
+|typescript:S1128"4Remove this unused import of 'APIGatewayProxyEvent'.(¬‰µ.8‹íÛï›2J$a4aa0a48-9d68-4dc6-801a-6e9c2d0a3ebb
+}typescript:S1128"5Remove this unused import of 'APIGatewayProxyResult'.(¬‰µ.8‹íÛï›2J$7e2ca3d3-b926-454b-9ced-702eab7c6476
+vtypescript:S1128"-Remove this unused import of 'DeleteCommand'.(•«¢û8‹íÛï›2J$db71c940-7179-4699-88c2-95deda12d61a
+£typescript:S128&"VEnd this switch case with an unconditional break, continue, return or throw statement.(İÕîÓøÿÿÿÿ8ò­İï›2J$7c69ffc5-4d8b-48ef-979e-4728d603d455
+typescript:S1854)"6Remove this useless assignment to variable "response".(ãšÑó8‰áï›2J$eed66798-cba9-4672-bc9b-b6f0932c6efe
+typescript:S128+"VEnd this switch case with an unconditional break, continue, return or throw statement.(°É½Ü8Ñ¾Şï›2J$1eb48948-539c-4c4b-a5b1-30af402eb39a
+typescript:S1854."6Remove this useless assignment to variable "response".(¯Û§­8‰áï›2J$6e0a837a-88c4-4760-8b15-f1d30b026cc8
+£typescript:S1280"VEnd this switch case with an unconditional break, continue, return or throw statement.(Ê×µÏúÿÿÿÿ8Ï¾ßï›2J$d548aeb7-a6ec-498f-b8c7-6bd00474798d
+„typescript:S18544"6Remove this useless assignment to variable "response".(îËò‡úÿÿÿÿ8‰áï›2J$012ea5c6-f9d3-446f-a534-3c4b985ab629
+„typescript:S18548"6Remove this useless assignment to variable "response".(ñ¿Ç¤ùÿÿÿÿ8‰áï›2J$1de6fb73-0d94-4084-8fdb-cb3b23587c42
