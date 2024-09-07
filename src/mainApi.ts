@@ -9,9 +9,8 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import {APIGatewayEvent} from "aws-lambda/trigger/api-gateway-proxy";
 interface Task {
-
     taskId: string,
-        task: string,
+    task: string,
     status: string,
     dueDate: string,
     assignedTo: string,
@@ -37,13 +36,16 @@ export const handler = async (event: APIGatewayEvent) => {
     switch (event.httpMethod) {
         case 'POST':
             if (event.body != null) {
-                const responce = JSON.parse(event.body) as TaskInput
-                response =  await insertItem(responce, tableName, dynamo)
-            }
-        case 'UPDATE':
-            if (event.body != null) {
-                const responce = JSON.parse(event.body) as TaskInput
-                response = await updateItem(responce, tableName, dynamo)
+                if (event.path =="/update") {
+                    const responce = JSON.parse(event.body) as TaskInput
+                    response = await updateItem(responce, tableName, dynamo)
+                } else {
+                    const responce = JSON.parse(event.body) as TaskInput
+                    response =  await insertItem(responce, tableName, dynamo)
+
+                }
+
+
             }
         case 'GET':
             if (event.body != null) {
