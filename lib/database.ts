@@ -31,8 +31,8 @@ export class DatabaseStack extends cdk.Stack {
 
       new StringParameter(this, "mainTable_"+ props?.envName,{parameterName: "mainTable_"+ props?.envName,stringValue:table.tableArn})
         const vpc = Vpc.fromLookup(this,"import_vpcid_"+ props?.envName, {
-        vpcId :StringParameter.fromStringParameterName(this, "import_vpcid_"+ props?.envName,"vpcid_"+ props?.envName).stringValue
-
+            // https://lzygo1995.medium.com/how-to-resolve-all-arguments-to-vpc-fromlookup-must-be-concrete-no-tokens-error-in-cdk-add1c2aba97b
+        vpcId :StringParameter.valueFromLookup(this,"vpcid_"+ props?.envName)
         })
       const dbInstance = new DatabaseInstance(this, 'db-instance', {
           vpc,
