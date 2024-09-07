@@ -4,19 +4,31 @@ import * as cdk from 'aws-cdk-lib';
 import { ResttodoappStack } from '../lib/resttodoapp-stack';
 import {DatabaseStack} from "../lib/database";
 import {InfraStack} from "../lib/infra";
-
+require('dotenv').config()
 const app = new cdk.App();
 new ResttodoappStack(app, 'ResttodoappStack', {
+    env: {
+        account:process.env.AWS_ACCOUNT,
+        region:process.env.AWS_REGION,
+    },
   envName:"dev",
     stageName:""
 });
 
-new DatabaseStack(app, 'ResttodoappStack', {
+new DatabaseStack(app, 'ResttodoappDatabaseStack', {
+    env: {
+        account:process.env.AWS_ACCOUNT,
+        region:process.env.AWS_REGION,
+    },
     envName:"dev",
     stageName:""
 });
 
-new InfraStack(app, 'ResttodoappStack', {
+new InfraStack(app, 'ResttodoappInfraStack', {
+    env: {
+        account:process.env.AWS_ACCOUNT,
+        region:process.env.AWS_REGION,
+    },
     envName:"dev",
     stageName:""
 });
