@@ -12,7 +12,7 @@ new ResttodoappStack(app, 'ResttodoappStack', {
         region:process.env.AWS_REGION,
     },
   envName:"dev",
-    stageName:""
+    stageName:"learncdk"
 });
 
 new DatabaseStack(app, 'ResttodoappDatabaseStack', {
@@ -21,7 +21,7 @@ new DatabaseStack(app, 'ResttodoappDatabaseStack', {
         region:process.env.AWS_REGION,
     },
     envName:"dev",
-    stageName:""
+    stageName:"learncdk"
 });
 
 new InfraStack(app, 'ResttodoappInfraStack', {
@@ -30,5 +30,5 @@ new InfraStack(app, 'ResttodoappInfraStack', {
         region:process.env.AWS_REGION,
     },
     envName:"dev",
-    stageName:""
+    stageName:"learncdk"
 });
