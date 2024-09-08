@@ -12,7 +12,7 @@ new ResttodoappStack(app, 'ResttodoappStack', {
         region:process.env.AWS_REGION,
     },
   envName:"dev",
-    stageName:"learncdk"
+    stageName:"learncdk" // käytä tätä kentää jos tarvetta eriyttä enemmän stack
 });
 
 new DatabaseStack(app, 'ResttodoappDatabaseStack', {

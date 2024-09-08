@@ -1,71 +1,102 @@
-import { ALBCallback, ALBEvent, ALBResult, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
     DynamoDBDocumentClient,
     ScanCommand,
     PutCommand,
     GetCommand,
-    DeleteCommand, UpdateCommand,
+    UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import {APIGatewayEvent} from "aws-lambda/trigger/api-gateway-proxy";
-interface Task {
-    taskId: string,
-    task: string,
-    status: string,
-    dueDate: string,
-    assignedTo: string,
-}
-
+import {PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 
 interface TaskInput {
-
     taskId: string,
     task: string,
     status: string,
     dueDate: string,
     assignedTo: string,
 }
-export const handler = async (event: APIGatewayEvent) => {
+
+export interface ReturnValue {
+    statusCode:Number,
+    body:string
+}
+
+export const handler = async (event: APIGatewayEvent):Promise<ReturnValue> => {
 
     const dynamoDb = new DynamoDBClient();
     const dynamo = DynamoDBDocumentClient.from(dynamoDb);
-
+    const s3 = new S3Client()
     const tableName = process.env.TABLE_NAME as string;
-    let response = null
+
+    async function makePut(body:string,bucketName:string) {
+        await s3.send(new PutObjectCommand({
+            Bucket: bucketName,
+            Key: "file1.txt",
+            Body: body,
+            ContentType: 'text/plain'
+        }));
+    }
+
+    async function post() {
+        if  (event.path =="/update" && event.body != null) {
+            return  await updateItem(JSON.parse(event.body) as TaskInput, tableName, dynamo)
+        } else if (event.path =="/update2" && event.body != null ) {
+            return await insertItem(JSON.parse(event.body) as TaskInput, tableName, dynamo)
+        } else if (event.path =="/trigger1" && event.body != null ) {
+            await makePut(event.body,process.env.BUCKET_NAME1 as string);
+            return {
+                statusCode: 200,
+                body: JSON.stringify({message: 'OK'}),
+            };
+
+        } else if (event.path =="/trigger2" && event.body != null ) {
+            await makePut(event.body,process.env.BUCKET_NAME2 as string);
+            return {
+                statusCode: 200,
+                body: JSON.stringify({message: 'OK'}),
+            };
+
+        } else {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({message: 'Invalid path'}),
+            };
+        }
+    }
+
+    async function get() {
+        if (event.path == "/all") {
+            return await getAll(tableName, dynamo)
+        } else if (event.path == "/item" && event.body != null) {
+            return await getItem(JSON.parse(event.body) as TaskInput, tableName, dynamo)
+        } else {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({message: 'Invalid HTTP method'}),
+            };
+        }
+    }
+
+    const testApiKey = event.headers["X-API-Key"]
+    if (testApiKey == undefined) {
+        return {
+            statusCode: 401,
+            body: JSON.stringify({message: ''}),
+        };
+    }
 
     switch (event.httpMethod) {
         case 'POST':
-            if (event.body != null) {
-                if (event.path =="/update") {
-                    const responce = JSON.parse(event.body) as TaskInput
-                    response = await updateItem(responce, tableName, dynamo)
-                } else {
-                    const responce = JSON.parse(event.body) as TaskInput
-                    response =  await insertItem(responce, tableName, dynamo)
-
-                }
-
-
-            }
+            return await post();
         case 'GET':
-            if (event.body != null) {
-                if (event.path =="/all") {
-                    const responce = JSON.parse(event.body) as TaskInput
-                    response = await getAll(responce, tableName, dynamo)
-                }
-                if (event.path =="/item") {
-                    const responce = JSON.parse(event.body) as TaskInput
-                    response = await getItem(responce, tableName,dynamo)
-                }
-            }
+            return await get();
         default:
-            response = {
+            return {
                 statusCode: 400,
-                body: JSON.stringify({ message: 'Invalid HTTP method' }),
+                body: JSON.stringify({message: 'Invalid HTTP method'}),
             };
     }
-    // @ts-ignore
-    return response;
   };
 
 async function getItem(event : TaskInput,tableName:string, client: DynamoDBDocumentClient) {
@@ -99,7 +130,7 @@ async function getItem(event : TaskInput,tableName:string, client: DynamoDBDocum
 
 
 }
-async function getAll(event : TaskInput,tableName:string, client: DynamoDBDocumentClient) {
+async function getAll(tableName:string, client: DynamoDBDocumentClient):Promise<ReturnValue> {
     try {
         const result = await client.send(new ScanCommand({
             TableName: tableName,
@@ -128,7 +159,7 @@ async function getAll(event : TaskInput,tableName:string, client: DynamoDBDocume
 
 }
 
-async function insertItem(event : TaskInput,tableName:string, client: DynamoDBDocumentClient) {
+async function insertItem(event : TaskInput,tableName:string, client: DynamoDBDocumentClient):Promise<ReturnValue> {
     const item = {
         taskId: event.taskId,
         task: event.task,
@@ -158,7 +189,7 @@ async function insertItem(event : TaskInput,tableName:string, client: DynamoDBDo
 }
 
 
-async function updateItem(event : TaskInput,tableName:string,client: DynamoDBDocumentClient) {
+async function updateItem(event : TaskInput,tableName:string,client: DynamoDBDocumentClient):Promise<ReturnValue> {
     const command = new UpdateCommand({
         TableName: tableName,
         Key: {
